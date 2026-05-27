@@ -1,0 +1,61 @@
+Table aircraft {
+  aircraft_id int [pk, increment]
+  icao24 char(6) [unique, not null]
+  callsign varchar(8)
+  country_id smallint [not null, ref: > countries.country_id]
+  category_id smallint [not null, ref: > categories.category_id]
+}
+
+Table categories {
+  category_id smallint [pk]
+  name text [unique, not null]
+  description text
+}
+
+Table aircraft_position {
+  position_id int [pk, increment]
+  aircraft_id int [not null, ref: > aircraft.aircraft_id]
+  import_id int [not null, ref: > import_logs.import_id]
+  area_id smallint [not null, ref: > monitored_areas.area_id]
+
+  time_position timestamp
+  longitude decimal(9,6) [not null]
+  latitude decimal(9,6) [not null]
+  geo_altitude decimal(10,2)
+  baro_altitude decimal(10,2)
+
+  indexes {
+    (aircraft_id, import_id) [unique]
+  }
+}
+
+Table aircraft_movement {
+  position_id int [pk, ref: - aircraft_position.position_id]
+  velocity decimal(10,2)
+  true_track decimal(5,2)
+}
+
+Table countries {
+  country_id smallint [pk, increment]
+  name text [unique, not null]
+}
+
+Table monitored_areas {
+  area_id smallint [pk, increment]
+  name text [unique, not null]
+  lamin decimal(8,5) [not null]
+  lomin decimal(8,5) [not null]
+  lamax decimal(8,5) [not null]
+  lomax decimal(8,5) [not null]
+}
+
+Table import_logs {
+  import_id int [pk, increment]
+  imported_at timestamp [not null]
+  api_name text [not null]
+  endpoint text [not null]
+  records_received int [not null]
+  records_saved int [not null]
+  status text [not null]
+  error_message text
+}
