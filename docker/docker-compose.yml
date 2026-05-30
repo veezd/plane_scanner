@@ -1,0 +1,16 @@
+services:
+  plane-scanner-app:
+    container_name: plane_scanner_container
+
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+
+    restart: unless-stopped
+
+    # w przyszlosci jezeli chcemy zaimplementowac logowanie trzeba dodac zmienne environment
+    
+    volumes:
+      - ../:/plane_scanner_app
+
+    # trzeba bedzie chyba dodac porty do frontu jak juz powstanie
