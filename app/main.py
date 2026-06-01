@@ -6,19 +6,19 @@ import queue
 if __name__ == "__main__":    
     malopolska_bbox = (49.15, 50.55, 19.05, 21.35)
     q = queue.Queue()
-    db = DBmanager()
+    download_interval = 10
 
+    db = DBmanager(queue=q, s_interval=download_interval+5)
     # test obecnej implementacji apireader
-    with ApiReader(bbox=malopolska_bbox,data_queue=q) as reader:
-        reader.start_receiving(interval_s=10)
-
+    with ApiReader(bbox=malopolska_bbox,data_queue=q,d_interval=download_interval) as reader:
+        reader.start_receiving()
+        db.begin_saving()
         i=0
 
         while i<5:
             try:
-                nowe_dane = q.get(timeout=15)
-                q.task_done()
-                
+                print("tura")      
+                time.sleep(15) # czekamy 15 sekund na dane, powinno wystarczyć na 1-2 pobrania danych z API          
             except queue.Empty:
                 print("[Main] Nie otrzymano danych w czasie 15 sekund.")
 
@@ -26,3 +26,4 @@ if __name__ == "__main__":
 
 
         reader.stop_receiving()
+        db.end_saving()

@@ -1,5 +1,4 @@
--- to query jest zvibe kodowane, nie jestem jakos fanem SQL, Jafar mozesz to sprawdzic pozniej jak bedziesz
--- grzebal przy bazie danych
+-- Sprawdzilem query, poprawnie generuje tabele zgodne z dbml'em.
 
 CREATE TABLE IF NOT EXISTS countries (
     country_id INTEGER PRIMARY KEY AUTOINCREMENT,

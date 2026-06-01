@@ -1,17 +1,18 @@
 from opensky_api import OpenSkyApi
 from db_manager import DBmanager
 import threading
-import time
+import json
 
 class ApiReader:
-    def __init__(self,bbox,data_queue): # boundingBox to chwilowa zmienna do testow (zeby oszczedzic tokeny)
+    def __init__(self,bbox,data_queue,d_interval): # boundingBox to chwilowa zmienna do testow (zeby oszczedzic tokeny)
         self.api = OpenSkyApi()
         self._stop_event = threading.Event()
         self._thread = None
         #self.latest_data = None # podlegac bedzie zmiana
         self.bounding_box = bbox # 4 elementowa krotka
         self.queue = data_queue
-
+        self.download_interval = d_interval
+        
     # potrzebne do uzycia context managera ktory zarzadza polaczeniem http
     def __enter__(self):
         self.api.__enter__()
@@ -22,7 +23,7 @@ class ApiReader:
         return None
     #
 
-    def _read_loop(self,interval_s):
+    def _read_loop(self):
         while not self._stop_event.is_set():
             try:
                 states = self.api.get_states(bbox=self.bounding_box)
@@ -33,9 +34,9 @@ class ApiReader:
             except Exception as e:
                 print(f"[ApiReader] Data retrieval error : {e}")
 
-            self._stop_event.wait(interval_s)
+            self._stop_event.wait(self.download_interval)
 
-    def start_receiving(self,interval_s):
+    def start_receiving(self):
         if self._thread is not None and self._thread.is_alive():
             print("[ApiReader] Called 'start_receiving' while data retrieval is already in progress")
             return
@@ -44,12 +45,11 @@ class ApiReader:
 
         self._thread = threading.Thread(
             target = self._read_loop,
-            args = (interval_s,), # implementacja Thread wymaga takiego dziwnego zapisu krotki
             daemon = True
         )
 
         self._thread.start()
-        print(f"[ApiReader] Started data retrieval with interval {interval_s}s")
+        print(f"[ApiReader] Started data retrieval with interval {self.download_interval}s")
 
 
     def stop_receiving(self):

@@ -1,0 +1,23 @@
+INSERT OR IGNORE INTO categories (category_id, name, description)
+VALUES
+    (0, 'No information at all', NULL),
+    (1, 'No ADS-B Emitter Category Information', NULL),
+    (2, 'Light', '< 15500 lbs'),
+    (3, 'Small', '15500 to 75000 lbs'),
+    (4, 'Large', '75000 to 300000 lbs'),
+    (5, 'High Vortex Large', 'aircraft such as B-757'),
+    (6, 'Heavy', '> 300000 lbs'),
+    (7, 'High Performance', '> 5g acceleration and 400 kts'),
+    (8, 'Rotorcraft', NULL),
+    (9, 'Glider / sailplane', NULL),
+    (10, 'Lighter-than-air', NULL),
+    (11, 'Parachutist / Skydiver', NULL),
+    (12, 'Ultralight / hang-glider / paraglider', NULL),
+    (13, 'Reserved', NULL),
+    (14, 'Unmanned Aerial Vehicle', NULL),
+    (15, 'Space / Trans-atmospheric vehicle', NULL),
+    (16, 'Surface Vehicle – Emergency Vehicle', NULL),
+    (17, 'Surface Vehicle – Service Vehicle', NULL),
+    (18, 'Point Obstacle', 'includes tethered balloons'),
+    (19, 'Cluster Obstacle', NULL),
+    (20, 'Line Obstacle', NULL);
