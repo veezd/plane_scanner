@@ -53,6 +53,7 @@ with st.sidebar:
         st.session_state.t = datetime.timedelta(hours=1)
     start_time = st.datetime_input('Czas początkowy', value = None)
     end_time = st.datetime_input('Czas końcowy', value = None)
+    visible_query = st.checkbox('Pokaż zapytanie SQL', value=False)
 
 if origin_country == "Wszystkie":
     origin_country = None
@@ -76,5 +77,8 @@ df, query= dashboard_methods.fetch_filtered_dataframe(
     time_period=[start_time,end_time],
     icao=icao,
     callsign=callsign)
-st.write(query)
+
+#do debugowania
+if visible_query:
+    st.write(query)
 st.write(df)
