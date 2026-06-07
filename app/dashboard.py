@@ -2,22 +2,22 @@ import pandas as pd
 import streamlit as st
 import sqlite3
 from db_manager import DBmanager
-import app.db_methods as db_methods
+import dashboard_methods
 import datetime
 import pydeck as pdk
 
-db = db_methods.get_db()
-countries = db_methods.fetch_query("""SELECT name 
+db = dashboard_methods.get_db()
+countries = dashboard_methods.fetch_query("""SELECT name 
                                    FROM countries
                                    ORDER BY name""")
 countries = ["Wszystkie"] + countries["name"].tolist()
 
-categories = db_methods.fetch_query("""SELECT name 
+categories = dashboard_methods.fetch_query("""SELECT name 
                                    FROM categories
                                    ORDER BY category_id""")
 categories = ["Wszystkie"] + categories["name"].tolist()
 
-areas = db_methods.fetch_query("""SELECT name 
+areas = dashboard_methods.fetch_query("""SELECT name 
                                    FROM monitored_areas
                                    ORDER BY name""")
 areas = ["Wszystkie"] + areas["name"].tolist()
@@ -55,7 +55,7 @@ if area == "Wszystkie":
 if velocity == 0:
     velocity = None
 
-df, query= db_methods.fetch_filtered_dataframe(
+df, query= dashboard_methods.fetch_filtered_dataframe(
     category=category,
     area=area,
     velocity=velocity,
