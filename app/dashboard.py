@@ -26,6 +26,7 @@ st.set_page_config(page_title="Plane scanner", layout="wide", page_icon="✈️"
 
 with st.sidebar:
     st.header('Filtry')
+    latest_only = st.checkbox("Tylko najnowsze dane samolotu", value=True)
     origin_country = st.selectbox("Kraj pochodzenia", countries)
     category = st.selectbox("Kategoria", categories)
     area = st.selectbox("Miasto", areas)
@@ -64,6 +65,7 @@ df, query= dashboard_methods.fetch_filtered_dataframe(
     origin_country=origin_country,
     time_period=[start_time,end_time],
     icao=icao,
-    callsign=callsign)
+    callsign=callsign,
+    latest_only=latest_only)
 st.write(query)
 st.write(df)
