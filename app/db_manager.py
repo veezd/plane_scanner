@@ -237,10 +237,10 @@ class DBmanager:
                 except Exception as inner_e:
                     print(f"[DBmanager] Could not log fatal error to import_logs: {inner_e}")
 
-    def fetch_dataframe(self, query):
+    def fetch_dataframe(self, query, params=None):
         try:
-            return pd.read_sql_query(query, self.connection)
+            return pd.read_sql_query(query, self.connection, params=params)
 
-        except (sqlite3.Error, pd.errors.DatabaseError) as e:
+        except Exception as e:
             print(f"[DBmanager] Database error: {e}")
             return None
