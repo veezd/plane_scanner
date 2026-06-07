@@ -2,22 +2,22 @@ import pandas as pd
 import streamlit as st
 import sqlite3
 from db_manager import DBmanager
-import app.db_methods as db_methods
+import app.dashboard_methods as dashboard_methods
 import datetime
 import pydeck as pdk
 
-db = db_methods.get_db()
-countries = db_methods.fetch_query("""SELECT name 
+db = dashboard_methods.get_db()
+countries = dashboard_methods.fetch_query("""SELECT name 
                                    FROM countries
                                    ORDER BY name""")
 countries = ["Wszystkie"] + countries["name"].tolist()
 
-categories = db_methods.fetch_query("""SELECT name 
+categories = dashboard_methods.fetch_query("""SELECT name 
                                    FROM categories
                                    ORDER BY category_id""")
 categories = ["Wszystkie"] + categories["name"].tolist()
 
-areas = db_methods.fetch_query("""SELECT name 
+areas = dashboard_methods.fetch_query("""SELECT name 
                                    FROM monitored_areas
                                    ORDER BY name""")
 areas = ["Wszystkie"] + areas["name"].tolist()
@@ -55,7 +55,7 @@ if area == "Wszystkie":
 if velocity == 0:
     velocity = None
 
-df, query= db_methods.fetch_filtered_dataframe(
+df, query= dashboard_methods.fetch_filtered_dataframe(
     category=category,
     area=area,
     velocity=velocity,
@@ -67,3 +67,44 @@ df, query= db_methods.fetch_filtered_dataframe(
     callsign=callsign)
 st.write(query)
 st.write(df)
+
+#tworzenie mapy
+df = df.rename(columns={
+    "długość geograficzna": "longitude",
+    "szerokość geograficzna": "latitude"
+})
+icon_url = dashboard_methods.image_to_base64("docs/plane_icon.png")
+df["icon_data"] = [{
+    "url": icon_url,
+    "width": 128,
+    "height": 128,
+    "anchorY": 128
+}] * len(df)
+
+layer = pdk.Layer(
+    "IconLayer",
+    data=df,
+    get_icon="icon_data",
+    get_size=3,
+    size_scale=10,
+    get_position="[longitude, latitude]",
+    get_angle="true_track",
+    pickable=True,
+)
+
+view_state = pdk.ViewState(
+    latitude=52.0,
+    longitude=19.0,
+    zoom=5
+)
+
+deck = pdk.Deck(
+    layers=[layer],
+    initial_view_state=view_state,
+    tooltip={
+        "text": "icao24: {icao24}\nLot: {oznaczenie lotu}\nKierunek: {true_track}°"
+    },
+    map_style=None
+)
+
+st.pydeck_chart(deck)
