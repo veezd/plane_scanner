@@ -30,11 +30,22 @@ with st.sidebar:
     category = st.selectbox("Kategoria", categories)
     area = st.selectbox("Miasto", areas)
     velocity = st.slider("Minimalna prędkość [m/s]")
-    col1, col2 = st.columns(2)
-    min_geo_alt = col1.number_input('Min. wysokość geometryczna [m]', value=None)
-    max_geo_alt = col2.number_input('Max. wysokość geometryczna [m]', value=None)
-    min_baro_alt = col1.number_input('Min. wysokość barometryczna [m]', value=None)
-    max_baro_alt = col2.number_input('Max. wysokość barometryczna [m]', value=None)
+    with st.container(border=True) as c:
+        geo_or_baro = st.segmented_control("Wysokość [m]", ["geometryczna", "barometryczna"],
+                                        selection_mode="single",
+                                        default="geometryczna",
+                                        required=True)
+        col1, col2 = st.columns(2)
+        if geo_or_baro == "geometryczna":
+            min_geo_alt = col1.number_input('Minimalna', value=None)
+            max_geo_alt = col2.number_input('Maksymalna', value=None)
+            min_baro_alt = None
+            max_baro_alt = None
+        else:
+            min_baro_alt = col1.number_input('Minimalna', value=None)
+            max_baro_alt = col2.number_input('Maksymalna', value=None)
+            min_geo_alt = None
+            max_geo_alt = None
     icao = st.text_input("icao24", max_chars=6, placeholder="Wpisz...")
     callsign = st.text_input("Oznaczenie lotu", max_chars=6, placeholder="Wpisz...")
     if "now" not in st.session_state:
