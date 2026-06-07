@@ -3,6 +3,7 @@ import os
 import threading
 import queue
 import datetime
+import pandas as pd
 
 class DBmanager:
     def __init__(self,queue,s_interval):
@@ -235,3 +236,11 @@ class DBmanager:
                     self.connection.commit()
                 except Exception as inner_e:
                     print(f"[DBmanager] Could not log fatal error to import_logs: {inner_e}")
+
+    def fetch_dataframe(self, query, params=None):
+        try:
+            return pd.read_sql_query(query, self.connection, params=params)
+
+        except Exception as e:
+            print(f"[DBmanager] Database error: {e}")
+            return None
