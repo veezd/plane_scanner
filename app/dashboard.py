@@ -66,9 +66,10 @@ df, query= dashboard_methods.fetch_filtered_dataframe(
     icao=icao,
     callsign=callsign)
 st.write(query)
-st.write(df)
 
 #tworzenie mapy
+st.subheader("Mapa samolotów")
+
 df = df.rename(columns={
     "długość geograficzna": "longitude",
     "szerokość geograficzna": "latitude"
@@ -108,3 +109,5 @@ deck = pdk.Deck(
 )
 
 st.pydeck_chart(deck)
+
+st.write(df)
