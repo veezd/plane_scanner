@@ -91,21 +91,15 @@ def fetch_filtered_dataframe(
         params["category"] = category
 
     if area:
-        if area[0] is not None:
-            conditions.append("ap.latitude >= :min_lat")
-            params["min_lat"] = area[0]
+        area = get_area_cords(area)
 
-        if area[1] is not None:
-            conditions.append("ap.latitude <= :max_lat")
-            params["max_lat"] = area[1]
+        conditions.append("ap.latitude BETWEEN :min_lat AND :max_lat")
+        params["min_lat"] = area[0]
+        params["max_lat"] = area[2]
 
-        if area[2] is not None:
-            conditions.append("ap.longitude >= :min_lon")
-            params["min_lon"] = area[2]
-
-        if area[3] is not None:
-            conditions.append("ap.longitude <= :max_lon")
-            params["max_lon"] = area[3]
+        conditions.append("ap.longitude BETWEEN :min_lon AND :max_lon")
+        params["min_lon"] = area[1]
+        params["max_lon"] = area[3]
 
     if velocity is not None:
         conditions.append("am.velocity >= :velocity")
@@ -163,3 +157,19 @@ def image_to_base64(path):
     with open(path, "rb") as file:
         encoded = base64.b64encode(file.read()).decode()
     return f"data:image/png;base64,{encoded}"
+
+@st.cache_data
+def get_area_cords(area_name):
+    query = """--sql
+        SELECT lamin, lomin, lamax, lomax
+        FROM monitored_areas
+        WHERE name = :area_name
+    """
+    params = {"area_name": area_name}
+
+    df = fetch_query(query, params)
+
+    if df.empty:
+        return None
+    
+    return df[["lamin", "lomin", "lamax", "lomax"]].iloc[0].tolist()
