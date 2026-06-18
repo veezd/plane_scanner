@@ -1,7 +1,4 @@
-import pandas as pd
 import streamlit as st
-import sqlite3
-from db_manager import DBmanager
 import dashboard_methods
 import datetime
 import pydeck as pdk
@@ -30,7 +27,8 @@ with st.sidebar:
     origin_country = st.selectbox("Kraj pochodzenia", countries)
     category = st.selectbox("Kategoria", categories)
     area = st.selectbox("Miasto", areas)
-    velocity = st.slider("Minimalna prędkość [m/s]")
+    velocity = st.slider("Minimalna prędkość [m/s]", min_value=0, max_value=350)
+
     with st.container(border=True) as c:
         geo_or_baro = st.segmented_control("Wysokość [m]", ["geometryczna", "barometryczna"],
                                         selection_mode="single",
@@ -38,8 +36,8 @@ with st.sidebar:
                                         required=True)
         col1, col2 = st.columns(2)
         if geo_or_baro == "geometryczna":
-            min_geo_alt = col1.number_input('Minimalna', value=None)
-            max_geo_alt = col2.number_input('Maksymalna', value=None)
+            min_geo_alt = col1.number_input('Minimalna', value=None, step=10)
+            max_geo_alt = col2.number_input('Maksymalna', value=None, step=10)
             min_baro_alt = None
             max_baro_alt = None
         else:
@@ -47,11 +45,14 @@ with st.sidebar:
             max_baro_alt = col2.number_input('Maksymalna', value=None)
             min_geo_alt = None
             max_geo_alt = None
+
     icao = st.text_input("icao24", max_chars=6, placeholder="Wpisz...")
     callsign = st.text_input("Oznaczenie lotu", max_chars=6, placeholder="Wpisz...")
+
     if "now" not in st.session_state:
         st.session_state.now = datetime.datetime.now()
         st.session_state.t = datetime.timedelta(hours=1)
+
     start_time = st.datetime_input('Czas początkowy', value = None)
     end_time = st.datetime_input('Czas końcowy', value = None)
     visible_query = st.checkbox('Pokaż zapytanie SQL', value=False)
@@ -68,6 +69,7 @@ if area == "Wszystkie":
 if velocity == 0:
     velocity = None
 
+#pobranie danych z bazy (do wyświetlanej tabeli)
 df, query= dashboard_methods.fetch_filtered_dataframe(
     category=category,
     area=area,
@@ -82,23 +84,36 @@ df, query= dashboard_methods.fetch_filtered_dataframe(
 
 
 #tworzenie mapy
+
+#pobranie danych do mapy (zawsze tylko najnowsze)
+df_map, query= dashboard_methods.fetch_filtered_dataframe(
+    category=category,
+    area=area,
+    velocity=velocity,
+    geo_alt=[min_geo_alt,max_geo_alt],
+    baro_alt=[min_baro_alt,max_baro_alt],
+    origin_country=origin_country,
+    time_period=[start_time,end_time],
+    icao=icao,
+    callsign=callsign,
+    latest_only=True)
 st.subheader("Mapa samolotów")
 
-df = df.rename(columns={
+df_map = df_map.rename(columns={
     "długość geograficzna": "longitude",
     "szerokość geograficzna": "latitude"
 })
 icon_url = dashboard_methods.image_to_base64("docs/plane_icon.png")
-df["icon_data"] = [{
+df_map["icon_data"] = [{
     "url": icon_url,
     "width": 128,
     "height": 128,
     "anchorY": 128
-}] * len(df)
+}] * len(df_map)
 
 layer = pdk.Layer(
     "IconLayer",
-    data=df,
+    data=df_map,
     get_icon="icon_data",
     get_size=3,
     size_scale=10,
@@ -117,7 +132,7 @@ deck = pdk.Deck(
     layers=[layer],
     initial_view_state=view_state,
     tooltip={
-        "text": "icao24: {icao24}\nLot: {oznaczenie lotu}\nKierunek: {true_track}°"
+        "text": "icao24: {icao24}\nLot: {oznaczenie lotu}"
     },
     map_style=None
 )
@@ -125,7 +140,8 @@ deck = pdk.Deck(
 st.pydeck_chart(deck)
 
 
-
+#wyświetlanie tabeli
+df = df.drop(columns=["true_track"])
 st.write(df)
 
 #do debugowania

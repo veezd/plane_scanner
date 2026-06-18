@@ -1,6 +1,4 @@
-import pandas as pd
 import streamlit as st
-import sqlite3
 from db_manager import DBmanager
 import queue
 import base64
