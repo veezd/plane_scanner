@@ -81,4 +81,48 @@ df, query= dashboard_methods.fetch_filtered_dataframe(
 #do debugowania
 if visible_query:
     st.write(query)
+
+#tworzenie mapy
+st.subheader("Mapa samolotów")
+
+df = df.rename(columns={
+    "długość geograficzna": "longitude",
+    "szerokość geograficzna": "latitude"
+})
+icon_url = dashboard_methods.image_to_base64("docs/plane_icon.png")
+df["icon_data"] = [{
+    "url": icon_url,
+    "width": 128,
+    "height": 128,
+    "anchorY": 128
+}] * len(df)
+
+layer = pdk.Layer(
+    "IconLayer",
+    data=df,
+    get_icon="icon_data",
+    get_size=3,
+    size_scale=10,
+    get_position="[longitude, latitude]",
+    get_angle="true_track",
+    pickable=True,
+)
+
+view_state = pdk.ViewState(
+    latitude=52.0,
+    longitude=19.0,
+    zoom=5
+)
+
+deck = pdk.Deck(
+    layers=[layer],
+    initial_view_state=view_state,
+    tooltip={
+        "text": "icao24: {icao24}\nLot: {oznaczenie lotu}\nKierunek: {true_track}°"
+    },
+    map_style=None
+)
+
+st.pydeck_chart(deck)
+
 st.write(df)
