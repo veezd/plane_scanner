@@ -25,30 +25,65 @@ def fetch_filtered_dataframe(
     origin_country=None,
     time_period=None,
     icao=None,
-    callsign=None
+    callsign=None,
+    latest_only=False
 ):
-    query = """--sql
-    SELECT 
-        a.icao24,
-        a.callsign AS "oznaczenie lotu",
-        ap.longitude AS "długość geograficzna",
-        ap.latitude AS "szerokość geograficzna",
-        ap.geo_altitude AS "wysokość geometryczna [m]",
-        ap.baro_altitude AS "wysokość barometryczna [m]",
-        am.velocity AS "prędkość [m/s]",
-        c.name AS "kategoria",
-        ct.name AS "kraj pochodzenia",
-        am.true_track
-    FROM aircraft AS a
-    JOIN countries AS ct 
-        ON a.country_id = ct.country_id
-    JOIN categories AS c 
-        ON a.category_id = c.category_id
-    LEFT JOIN aircraft_position AS ap 
-        ON a.aircraft_id = ap.aircraft_id
-    LEFT JOIN aircraft_movement AS am 
-        ON ap.position_id = am.position_id
-    """
+    if latest_only:
+        query = """--sql
+            SELECT 
+                a.icao24,
+                a.callsign AS "oznaczenie lotu",
+                ap.longitude AS "długość geograficzna",
+                ap.latitude AS "szerokość geograficzna",
+                ap.geo_altitude AS "wysokość geometryczna [m]",
+                ap.baro_altitude AS "wysokość barometryczna [m]",
+                am.velocity AS "prędkość [m/s]",
+                c.name AS "kategoria",
+                ct.name AS "kraj pochodzenia",
+                ap.time_position AS "czas pozycji",
+                am.true_track
+            FROM aircraft AS a
+            JOIN countries AS ct 
+                ON a.country_id = ct.country_id
+            JOIN categories AS c 
+                ON a.category_id = c.category_id
+            JOIN aircraft_position AS ap 
+                ON a.aircraft_id = ap.aircraft_id
+            JOIN (
+                SELECT 
+                    aircraft_id, 
+                    MAX(time_position) AS latest_position
+                FROM aircraft_position
+                GROUP BY aircraft_id
+            ) AS lp
+                ON ap.aircraft_id = lp.aircraft_id AND ap.time_position = lp.latest_position
+            LEFT JOIN aircraft_movement AS am 
+                ON ap.position_id = am.position_id
+            """
+    else:
+        query = """--sql
+            SELECT 
+                a.icao24,
+                a.callsign AS "oznaczenie lotu",
+                ap.longitude AS "długość geograficzna",
+                ap.latitude AS "szerokość geograficzna",
+                ap.geo_altitude AS "wysokość geometryczna [m]",
+                ap.baro_altitude AS "wysokość barometryczna [m]",
+                am.velocity AS "prędkość [m/s]",
+                c.name AS "kategoria",
+                ct.name AS "kraj pochodzenia",
+                ap.time_position AS "czas pozycji",
+                am.true_track
+            FROM aircraft AS a
+            JOIN countries AS ct 
+                ON a.country_id = ct.country_id
+            JOIN categories AS c 
+                ON a.category_id = c.category_id
+            LEFT JOIN aircraft_position AS ap 
+                ON a.aircraft_id = ap.aircraft_id
+            LEFT JOIN aircraft_movement AS am 
+                ON ap.position_id = am.position_id
+            """
 
     conditions = []
     params = {}
