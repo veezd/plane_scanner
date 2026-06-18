@@ -78,9 +78,6 @@ df, query= dashboard_methods.fetch_filtered_dataframe(
     icao=icao,
     callsign=callsign)
 
-#do debugowania
-if visible_query:
-    st.write(query)
 
 #tworzenie mapy
 st.subheader("Mapa samolotów")
@@ -126,3 +123,7 @@ deck = pdk.Deck(
 st.pydeck_chart(deck)
 
 st.write(df)
+
+#do debugowania
+if visible_query:
+    st.write(query)
