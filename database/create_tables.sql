@@ -60,6 +60,8 @@ CREATE TABLE IF NOT EXISTS aircraft_position (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_aircraft_position_unique 
 ON aircraft_position (aircraft_id, import_id);
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_aircraft_position_unique_time
+ON aircraft_position (aircraft_id, time_position);
 
 CREATE TABLE IF NOT EXISTS aircraft_movement (
     position_id INTEGER PRIMARY KEY,

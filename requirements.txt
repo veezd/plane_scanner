@@ -1,1 +1,2 @@
 git+https://github.com/openskynetwork/opensky-api.git#subdirectory=python
+streamlit

@@ -4,12 +4,12 @@ import threading
 import json
 
 class ApiReader:
-    def __init__(self,bbox,data_queue,d_interval): # boundingBox to chwilowa zmienna do testow (zeby oszczedzic tokeny)
+    def __init__(self,data_queue,d_interval): # boundingBox to chwilowa zmienna do testow (zeby oszczedzic tokeny)
         self.api = OpenSkyApi()
         self._stop_event = threading.Event()
         self._thread = None
         #self.latest_data = None # podlegac bedzie zmiana
-        self.bounding_box = bbox # 4 elementowa krotka
+        #self.bounding_box = bbox # 4 elementowa krotka debug
         self.queue = data_queue
         self.download_interval = d_interval
         
@@ -26,7 +26,7 @@ class ApiReader:
     def _read_loop(self):
         while not self._stop_event.is_set():
             try:
-                states = self.api.get_states(bbox=self.bounding_box)
+                states = self.api.get_states() #bbox=self.bounding_box debug opcja
                 if states:
                     self.queue.put(states)
                     print(f"[ApiReader] Succesfully retrieved data from API")
