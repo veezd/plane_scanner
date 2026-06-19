@@ -3,17 +3,19 @@ from db_manager import DBmanager
 import queue
 import base64
 
+cache_del_interval = 65
+
 @st.cache_resource
 def get_db():
     s_interval = 15
     return DBmanager(queue.Queue(), s_interval)
 
-@st.cache_data
+@st.cache_data(ttl=cache_del_interval)
 def fetch_query(query, params=None):
     db = get_db()
     return db.fetch_dataframe(query, params)
 
-@st.cache_data
+@st.cache_data(ttl=cache_del_interval)
 def fetch_filtered_dataframe(
     category=None,
     area=None,
@@ -24,7 +26,7 @@ def fetch_filtered_dataframe(
     time_period=None,
     icao=None,
     callsign=None,
-    latest_only=False
+    latest_only=False,
 ):
     if latest_only:
         query = """--sql

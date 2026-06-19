@@ -69,10 +69,6 @@ with st.sidebar:
     icao = st.text_input("icao24", max_chars=6, placeholder="Wpisz...")
     callsign = st.text_input("Oznaczenie lotu", max_chars=6, placeholder="Wpisz...")
 
-    if "now" not in st.session_state:
-        st.session_state.now = datetime.datetime.now()
-        st.session_state.t = datetime.timedelta(hours=1)
-
     start_time = st.datetime_input('Czas początkowy', value = None)
     end_time = st.datetime_input('Czas końcowy', value = None)
     visible_query = st.checkbox('Pokaż zapytanie SQL', value=False)
@@ -105,7 +101,13 @@ df, query= dashboard_methods.fetch_filtered_dataframe(
 
 #tworzenie mapy
 
-#pobranie danych do mapy (zawsze tylko najnowsze)
+#pobranie danych do mapy (zawsze tylko najnowsze i nie starsze niż 15 minut)
+
+if start_time is None:
+    now = datetime.datetime.now()
+    t = datetime.timedelta(minutes=15)
+    start_time = now - t
+
 df_map, query= dashboard_methods.fetch_filtered_dataframe(
     category=category,
     area=area,
