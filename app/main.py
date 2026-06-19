@@ -5,7 +5,7 @@ import queue
 
 if __name__ == "__main__":
     q = queue.Queue()
-    download_interval = 10
+    download_interval = 60
 
     db = DBmanager(queue=q, s_interval=download_interval+5)
     with ApiReader( data_queue=q, d_interval=download_interval) as reader:

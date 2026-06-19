@@ -151,10 +151,7 @@ class DBmanager:
                 """, (lat, lon))
                 area_row = self.cursor.fetchone()
                 
-                if not area_row:
-                    continue # Samolot leci poza monitorowanymi strefami, pomijamy go
-                    
-                area_id = area_row[0]
+                area_id = area_row[0] if area_row else 0
                 
                 icao24 = state.get("icao24") if is_dict else state.icao24
                 callsign = state.get("callsign") if is_dict else state.callsign
