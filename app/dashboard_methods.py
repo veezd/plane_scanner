@@ -91,15 +91,24 @@ def fetch_filtered_dataframe(
         params["category"] = category
 
     if area:
-        area = get_area_cords(area)
+        if isinstance(area, str):
+            area = get_area_cords(area)
 
-        conditions.append("ap.latitude BETWEEN :min_lat AND :max_lat")
-        params["min_lat"] = area[0]
-        params["max_lat"] = area[2]
+        if area[0] is not None:
+            conditions.append("ap.latitude >= :min_lat")
+            params["min_lat"] = area[0]   
 
-        conditions.append("ap.longitude BETWEEN :min_lon AND :max_lon")
-        params["min_lon"] = area[1]
-        params["max_lon"] = area[3]
+        if area[2] is not None:
+            conditions.append("ap.latitude <= :max_lat")
+            params["max_lat"] = area[2]   
+
+        if area[1] is not None:
+            conditions.append("ap.longitude >= :min_lon")
+            params["min_lon"] = area[1]   
+
+        if area[3] is not None:
+            conditions.append("ap.longitude <= :max_lon")
+            params["max_lon"] = area[3]   
 
     if velocity is not None:
         conditions.append("am.velocity >= :velocity")

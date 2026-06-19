@@ -26,7 +26,27 @@ with st.sidebar:
     latest_only = st.checkbox("Tylko najnowsze dane samolotu", value=True)
     origin_country = st.selectbox("Kraj pochodzenia", countries)
     category = st.selectbox("Kategoria", categories)
-    area = st.selectbox("Miasto", areas)
+
+    with st.container(border=True) as area_container:
+        cords_or_city = st.segmented_control('Lokalizacja', ['miasto', 'koordynaty'],
+                                             selection_mode="single",
+                                             default='miasto',
+                                             required=True)
+        
+        if cords_or_city == "koordynaty":
+            st.text('Zakres długości geograficznej')
+            lo_col1, lo_col2 = st.columns(2)
+            lomin = lo_col1.number_input('Dolny', value=None, key='lomin')
+            lomax = lo_col2.number_input('Górny', value=None, key='lomax')
+
+            st.text('Zakres szerekości geograficznej')
+            la_col1, la_col2 = st.columns(2)
+            lamin = la_col1.number_input('Dolny', value=None, key='lamin')
+            lamax = la_col2.number_input('Górny', value=None, key='lamax')
+            area = [st.session_state['lamin'], st.session_state['lomin'], st.session_state['lamax'], st.session_state['lomax']]
+        else:
+            area = st.selectbox("Miasto", areas)
+
     velocity = st.slider("Minimalna prędkość [m/s]", min_value=0, max_value=350)
 
     with st.container(border=True) as c:
