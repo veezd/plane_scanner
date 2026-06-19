@@ -2,6 +2,7 @@ import streamlit as st
 import dashboard_methods
 import datetime
 import pydeck as pdk
+import pandas as pd
 
 db = dashboard_methods.get_db()
 countries = dashboard_methods.fetch_query("""SELECT name 
@@ -86,58 +87,58 @@ df, query= dashboard_methods.fetch_filtered_dataframe(
 #tworzenie mapy
 
 #pobranie danych do mapy (zawsze tylko najnowsze)
-df_map, query= dashboard_methods.fetch_filtered_dataframe(
-    category=category,
-    area=area,
-    velocity=velocity,
-    geo_alt=[min_geo_alt,max_geo_alt],
-    baro_alt=[min_baro_alt,max_baro_alt],
-    origin_country=origin_country,
-    time_period=[start_time,end_time],
-    icao=icao,
-    callsign=callsign,
-    latest_only=True)
-st.subheader("Mapa samolotów")
+# df_map, query= dashboard_methods.fetch_filtered_dataframe(
+#     category=category,
+#     area=area,
+#     velocity=velocity,
+#     geo_alt=[min_geo_alt,max_geo_alt],
+#     baro_alt=[min_baro_alt,max_baro_alt],
+#     origin_country=origin_country,
+#     time_period=[start_time,end_time],
+#     icao=icao,
+#     callsign=callsign,
+#     latest_only=True)
+# st.subheader("Mapa samolotów")
 
-df_map = df_map.rename(columns={
-    "długość geograficzna": "longitude",
-    "szerokość geograficzna": "latitude"
-})
-icon_url = dashboard_methods.image_to_base64("docs/plane_icon.png")
-df_map["icon_data"] = [{
-    "url": icon_url,
-    "width": 128,
-    "height": 128,
-    "anchorY": 128
-}] * len(df_map)
+# df_map = df_map.rename(columns={
+#     "długość geograficzna": "longitude",
+#     "szerokość geograficzna": "latitude"
+# })
+# icon_url = dashboard_methods.image_to_base64("docs/plane_icon.png")
+# df_map["icon_data"] = [{
+#     "url": icon_url,
+#     "width": 128,
+#     "height": 128,
+#     "anchorY": 128
+# }] * len(df_map)
 
-layer = pdk.Layer(
-    "IconLayer",
-    data=df_map,
-    get_icon="icon_data",
-    get_size=3,
-    size_scale=10,
-    get_position="[longitude, latitude]",
-    get_angle="true_track",
-    pickable=True,
-)
+# layer = pdk.Layer(
+#     "IconLayer",
+#     data=df_map,
+#     get_icon="icon_data",
+#     get_size=3,
+#     size_scale=10,
+#     get_position="[longitude, latitude]",
+#     get_angle="true_track",
+#     pickable=True,
+# )
 
-view_state = pdk.ViewState(
-    latitude=52.0,
-    longitude=19.0,
-    zoom=5
-)
+# view_state = pdk.ViewState(
+#     latitude=52.0,
+#     longitude=19.0,
+#     zoom=5
+# )
 
-deck = pdk.Deck(
-    layers=[layer],
-    initial_view_state=view_state,
-    tooltip={
-        "text": "icao24: {icao24}\nLot: {oznaczenie lotu}"
-    },
-    map_style=None
-)
+# deck = pdk.Deck(
+#     layers=[layer],
+#     initial_view_state=view_state,
+#     tooltip={
+#         "text": "icao24: {icao24}\nLot: {oznaczenie lotu}"
+#     },
+#     map_style=None
+# )
 
-st.pydeck_chart(deck)
+# st.pydeck_chart(deck)
 
 if "selected_plane_icao" not in st.session_state:
     st.session_state.selected_plane_icao = None
@@ -213,11 +214,50 @@ if st.session_state.selected_plane_icao is None:
 else:
     st.subheader(f"Karta samolotu: {st.session_state.selected_plane_icao}")
     
-    st.write("Tutaj możesz umieścić wykresy, tabele i dodatkowe dane dla wybranego statku powietrznego.")
-
     if st.button("Powrót do mapy"):
         st.session_state.selected_plane_icao = None
         st.rerun()
+
+    plane_df, _ = dashboard_methods.fetch_filtered_dataframe(
+        icao=st.session_state.selected_plane_icao,
+        latest_only=False
+    )
+    
+    if "czas pozycji" in plane_df.columns:
+        plane_df["czas pozycji"] = pd.to_datetime(plane_df["czas pozycji"])
+        plane_df = plane_df.set_index("czas pozycji")
+        
+        for col in ["wysokość geometryczna [m]", "prędkość [m/s]", "szerokość geograficzna", "długość geograficzna"]:
+            plane_df[col] = plane_df[col].astype(str).str.replace(',', '.')
+            plane_df[col] = pd.to_numeric(plane_df[col], errors="coerce")
+            
+        plane_df = plane_df.resample("1min").mean(numeric_only=True).dropna(
+            subset=["wysokość geometryczna [m]", "szerokość geograficzna", "prędkość [m/s]", "długość geograficzna"], 
+            how="all"
+        )
+        
+        plane_df.index = plane_df.index.strftime('%H:%M')
+        
+        plane_df = plane_df.rename(columns={
+            "wysokość geometryczna [m]": "Wysokość geometryczna (m)",
+            "prędkość [m/s]": "Prędkość (m/s)"
+        })
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.write("Wysokość geometryczna [m]")
+        st.line_chart(plane_df[["Wysokość geometryczna (m)"]], color="#FF4B4B")
+        
+        st.write("Szerokość geograficzna")
+        st.line_chart(plane_df[["szerokość geograficzna"]], color="#0068C9")
+        
+    with col2:
+        st.write("Prędkość [m/s]")
+        st.line_chart(plane_df[["Prędkość (m/s)"]], color="#29B09D")
+        
+        st.write("Długość geograficzna")
+        st.line_chart(plane_df[["długość geograficzna"]], color="#FF8700")
 
 #wyświetlanie tabeli
 df = df.drop(columns=["true_track"])
