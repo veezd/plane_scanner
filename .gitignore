@@ -2,3 +2,5 @@
 __pycache__
 data.db
 credentials.json
+data.dbvenv/
+docs/ERD.dbdiagram
