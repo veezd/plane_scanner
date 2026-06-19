@@ -3,17 +3,19 @@ from db_manager import DBmanager
 import queue
 import base64
 
+cache_del_interval = 65
+
 @st.cache_resource
 def get_db():
     s_interval = 15
     return DBmanager(queue.Queue(), s_interval)
 
-@st.cache_data
+@st.cache_data(ttl=cache_del_interval)
 def fetch_query(query, params=None):
     db = get_db()
     return db.fetch_dataframe(query, params)
 
-@st.cache_data
+@st.cache_data(ttl=cache_del_interval)
 def fetch_filtered_dataframe(
     category=None,
     area=None,
@@ -24,7 +26,7 @@ def fetch_filtered_dataframe(
     time_period=None,
     icao=None,
     callsign=None,
-    latest_only=False
+    latest_only=False,
 ):
     if latest_only:
         query = """--sql
@@ -91,21 +93,24 @@ def fetch_filtered_dataframe(
         params["category"] = category
 
     if area:
+        if isinstance(area, str):
+            area = get_area_cords(area)
+
         if area[0] is not None:
             conditions.append("ap.latitude >= :min_lat")
-            params["min_lat"] = area[0]
-
-        if area[1] is not None:
-            conditions.append("ap.latitude <= :max_lat")
-            params["max_lat"] = area[1]
+            params["min_lat"] = area[0]   
 
         if area[2] is not None:
+            conditions.append("ap.latitude <= :max_lat")
+            params["max_lat"] = area[2]   
+
+        if area[1] is not None:
             conditions.append("ap.longitude >= :min_lon")
-            params["min_lon"] = area[2]
+            params["min_lon"] = area[1]   
 
         if area[3] is not None:
             conditions.append("ap.longitude <= :max_lon")
-            params["max_lon"] = area[3]
+            params["max_lon"] = area[3]   
 
     if velocity is not None:
         conditions.append("am.velocity >= :velocity")
@@ -163,3 +168,19 @@ def image_to_base64(path):
     with open(path, "rb") as file:
         encoded = base64.b64encode(file.read()).decode()
     return f"data:image/png;base64,{encoded}"
+
+@st.cache_data
+def get_area_cords(area_name):
+    query = """--sql
+        SELECT lamin, lomin, lamax, lomax
+        FROM monitored_areas
+        WHERE name = :area_name
+    """
+    params = {"area_name": area_name}
+
+    df = fetch_query(query, params)
+
+    if df.empty:
+        return None
+    
+    return df[["lamin", "lomin", "lamax", "lomax"]].iloc[0].tolist()
