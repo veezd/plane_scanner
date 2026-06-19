@@ -1,6 +1,6 @@
 .venv
 __pycache__
-data.db
+database/data.db
 credentials.json
 data.dbvenv/
 docs/ERD.dbdiagram
