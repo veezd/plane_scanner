@@ -1,0 +1,50 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{Raport z realizacji projektu końcowego \\ \large Przedmiot: Wprowadzenie do baz danych}
+\author{Igor Lelito \and Jakub Muszalski \and Radosław Myśliwy}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Wstęp i cel projektu}
+Głównym założeniem projektu było zaprojektowanie i wdrożenie aplikacji w języku Python, która umożliwia sprawną komunikację z bazą danych OpenSky Network. Projekt miał na celu praktyczne wykorzystanie wiedzy z zakresu modelowania systemów bazodanowych, ich integracji z zewnętrznymi interfejsami programistycznymi (API) oraz budowy warstwy analityczno-prezentacyjnej służącej do wizualizacji i interpretacji ruchu lotniczego.
+
+\section{Architektura systemu i wykorzystane technologie}
+Aplikacja została zbudowana w oparciu o architekturę klient-serwer, z wyraźnym, modułowym podziałem na warstwę logiczną (backend) oraz interfejs użytkownika (frontend). Do realizacji projektu wykorzystano następujące technologie:
+\begin{itemize}[label=$\bullet$]
+    \item \textbf{Język programowania:} Python --- stanowiący fundament zarówno dla logiki strukturalnej programu, jak i interfejsu,
+    \item \textbf{Źródło danych:} Baza danych OpenSky Network --- dostarczająca rzeczywiste dane o lotach,
+    \item \textbf{Framework frontendowy:} Streamlit --- umożliwiający szybkie i efektywne tworzenie interaktywnych aplikacji internetowych dla celów analizy danych.
+\end{itemize}
+
+\section{Podział ról i realizacja zadań}
+Prace nad aplikacją zostały podzielone adekwatnie do kompetencji członków zespołu, co pozwoliło na równoległy i niezależny rozwój kluczowych komponentów systemu, a następnie ich sprawną integrację.
+
+\subsection{Warstwa logiczna (Backend) -- Igor Lelito}
+Igor Lelito był odpowiedzialny za zaprojektowanie i implementację warstwy backendowej aplikacji. Do jego głównych zadań należało:
+\begin{itemize}[label=--]
+    \item Nawiązanie stabilnego i bezpiecznego połączenia z bazą danych OpenSky Network,
+    \item Opracowanie mechanizmów pobierania, parsowania oraz wstępnego filtrowania napływających danych lotniczych,
+    \item Przygotowanie struktur danych i wewnętrznych interfejsów w celu bezproblemowego przekazania przetworzonych informacji do warstwy prezentacyjnej.
+\end{itemize}
+
+\subsection{Warstwa prezentacyjna (Frontend) -- Jakub Muszalski i Radosław Myśliwy}
+Interfejs użytkownika został zrealizowany w środowisku Streamlit. Prace w tym obszarze zostały podzielone na dwa główne moduły:
+\begin{itemize}[label=--]
+    \item \textbf{Jakub Muszalski} --- odpowiadał za ogólną architekturę frontendu, przygotowanie spójnego układu graficznego (layoutu) aplikacji oraz implementację zaawansowanych, interaktywnych tabel. Jego praca umożliwiła użytkownikowi końcowemu wygodne przeglądanie oraz filtrowanie surowych i przetworzonych rekordów bazodanowych.
+    \item \textbf{Radosław Myśliwy} --- skoncentrował się na module wizualizacji danych. Był odpowiedzialny za transformację danych dostarczanych przez backend na czytelne, interaktywne wykresy analityczne. Dzięki temu aplikacja zyskała warstwę interpretacji statystyk i trendów w ruchu lotniczym.
+\end{itemize}
+
+\section{Podsumowanie}
+Dzięki ścisłej współpracy oraz klarownemu podziałowi obowiązków w zespole, udało się stworzyć w pełni funkcjonalne narzędzie bazodanowe. Zaprojektowany przez Igora Lelito backend sprawnie zasila aplikację aktualnymi informacjami z sieci OpenSky, natomiast frontend stworzony przez Jakuba Muszalskiego i Radosława Myśliwego oferuje intuicyjne i estetyczne środowisko do ich analizy. Projekt pozwolił na praktyczne zrozumienie wyzwań związanych z przetwarzaniem i prezentacją danych pobieranych w czasie rzeczywistym.
+
+\end{document}
