@@ -139,6 +139,85 @@ deck = pdk.Deck(
 
 st.pydeck_chart(deck)
 
+if "selected_plane_icao" not in st.session_state:
+    st.session_state.selected_plane_icao = None
+
+if st.session_state.selected_plane_icao is None:
+    df_map, query = dashboard_methods.fetch_filtered_dataframe(
+        category=category,
+        area=area,
+        velocity=velocity,
+        geo_alt=[min_geo_alt,max_geo_alt],
+        baro_alt=[min_baro_alt,max_baro_alt],
+        origin_country=origin_country,
+        time_period=[start_time,end_time],
+        icao=icao,
+        callsign=callsign,
+        latest_only=True
+    )
+
+    st.subheader("Mapa samolotów")
+
+    df_map = df_map.rename(columns={
+        "długość geograficzna": "longitude",
+        "szerokość geograficzna": "latitude"
+    })
+
+    icon_url = dashboard_methods.image_to_base64("docs/plane_icon.png")
+    df_map["icon_data"] = [{
+        "url": icon_url,
+        "width": 128,
+        "height": 128,
+        "anchorY": 128
+    }] * len(df_map)
+
+    layer = pdk.Layer(
+        "IconLayer",
+        id="plane_layer",
+        data=df_map,
+        get_icon="icon_data",
+        get_size=3,
+        size_scale=10,
+        get_position="[longitude, latitude]",
+        get_angle="true_track",
+        pickable=True,
+    )
+
+    view_state = pdk.ViewState(
+        latitude=52.0,
+        longitude=19.0,
+        zoom=5
+    )
+
+    deck = pdk.Deck(
+        layers=[layer],
+        initial_view_state=view_state,
+        tooltip={
+            "text": "icao24: {icao24}\nLot: {oznaczenie lotu}"
+        },
+        map_style=None
+    )
+
+    map_selection = st.pydeck_chart(
+        deck,
+        on_select="rerun",
+        selection_mode="single-object"
+    )
+
+    if map_selection and map_selection.selection.objects:
+        selected_objects = map_selection.selection.objects.get("plane_layer", [])
+        if selected_objects:
+            st.session_state.selected_plane_icao = selected_objects[0]["icao24"]
+            st.rerun()
+
+else:
+    st.subheader(f"Karta samolotu: {st.session_state.selected_plane_icao}")
+    
+    st.write("Tutaj możesz umieścić wykresy, tabele i dodatkowe dane dla wybranego statku powietrznego.")
+
+    if st.button("Powrót do mapy"):
+        st.session_state.selected_plane_icao = None
+        st.rerun()
 
 #wyświetlanie tabeli
 df = df.drop(columns=["true_track"])
