@@ -1,5 +1,3 @@
--- Sprawdzilem query, poprawnie generuje tabele zgodne z dbml'em.
-
 CREATE TABLE IF NOT EXISTS countries (
     country_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL
