@@ -4,3 +4,7 @@ database/data.db
 credentials.json
 data.dbvenv/
 docs/ERD.dbdiagram
+
+raport/*
+!raport/raport.tex
+!raport/raport.pdf
