@@ -9,7 +9,7 @@ Projekt zaliczeniowy z przedmiotu **„Wprowadzenie do baz danych”**. Aplikacj
 Aby aplikacja mogła pobierać dane, wymagane jest posiadanie aktywnego konta w serwisie OpenSky oraz lokalne skonfigurowanie poświadczeń.
 
 1. Zarejestruj darmowe konto na stronie [OpenSky Network](https://opensky-network.org/).
-2. W zakładce /my-opensky/account wygeneruj klucz API i pobierz plik credentials.json i upewnij się, że ma poniższą strukturę:
+2. W zakładce /my-opensky/account wygeneruj klucz API, pobierz plik credentials.json i upewnij się, że ma poniższą strukturę:
 
 ```json
 {"clientId":"clientID-example","clientSecret":"clientSecret-example"}
