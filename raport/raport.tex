@@ -6,6 +6,8 @@
 \geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
 \usepackage{hyperref}
 \usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{float}
 
 \title{Raport z realizacji projektu końcowego \\ \large Przedmiot: Wprowadzenie do baz danych}
 \author{Igor Lelito \and Jakub Muszalski \and Radosław Myśliwy}
@@ -16,35 +18,289 @@
 \maketitle
 
 \section{Wstęp i cel projektu}
-Głównym założeniem projektu było zaprojektowanie i wdrożenie aplikacji w języku Python, która umożliwia sprawną komunikację z bazą danych OpenSky Network. Projekt miał na celu praktyczne wykorzystanie wiedzy z zakresu modelowania systemów bazodanowych, ich integracji z zewnętrznymi interfejsami programistycznymi (API) oraz budowy warstwy analityczno-prezentacyjnej służącej do wizualizacji i interpretacji ruchu lotniczego.
+Głównym założeniem projektu było zaprojektowanie i wdrożenie aplikacji
+w języku Python, która umożliwia sprawną komunikację z bazą danych 
+OpenSky Network. Projekt miał na celu praktyczne wykorzystanie wiedzy 
+z zakresu modelowania systemów bazodanowych, ich integracji z 
+zewnętrznymi interfejsami programistycznymi (API) oraz budowy warstwy 
+analityczno-prezentacyjnej służącej do wizualizacji i interpretacji 
+ruchu lotniczego.
 
-\section{Architektura systemu i wykorzystane technologie}
-Aplikacja została zbudowana w oparciu o architekturę klient-serwer, z wyraźnym, modułowym podziałem na warstwę logiczną (backend) oraz interfejs użytkownika (frontend). Do realizacji projektu wykorzystano następujące technologie:
+\section{Architektura systemu}
+Aplikacja została zbudowana w oparciu o architekturę klient-serwer,
+z podziałem na warstwę logiczną (backend) oraz interfejs użytkownika (frontend). Do realizacji projektu wykorzystano
+następujące technologie:
 \begin{itemize}[label=$\bullet$]
-    \item \textbf{Język programowania:} Python --- stanowiący fundament zarówno dla logiki strukturalnej programu, jak i interfejsu,
-    \item \textbf{Źródło danych:} Baza danych OpenSky Network --- dostarczająca rzeczywiste dane o lotach,
-    \item \textbf{Framework frontendowy:} Streamlit --- umożliwiający szybkie i efektywne tworzenie interaktywnych aplikacji internetowych dla celów analizy danych.
+    \item \textbf{Język programowania:} Python - stanowiący fundament zarówno dla logiki strukturalnej programu, jak i interfejsu,
+    \item \textbf{Źródło danych:} Baza danych OpenSky Network - dostarczająca rzeczywiste dane o lotach,
+    \item \textbf{Framework frontendowy:} Streamlit - umożliwiający szybkie i efektywne tworzenie interaktywnych aplikacji internetowych dla celów analizy danych.
 \end{itemize}
 
-\section{Podział ról i realizacja zadań}
-Prace nad aplikacją zostały podzielone adekwatnie do kompetencji członków zespołu, co pozwoliło na równoległy i niezależny rozwój kluczowych komponentów systemu, a następnie ich sprawną integrację.
+\subsection{Analiza struktualna bazy danych}
 
-\subsection{Warstwa logiczna (Backend) -- Igor Lelito}
-Igor Lelito był odpowiedzialny za zaprojektowanie i implementację warstwy backendowej aplikacji. Do jego głównych zadań należało:
-\begin{itemize}[label=--]
-    \item Nawiązanie stabilnego i bezpiecznego połączenia z bazą danych OpenSky Network,
-    \item Opracowanie mechanizmów pobierania, parsowania oraz wstępnego filtrowania napływających danych lotniczych,
-    \item Przygotowanie struktur danych i wewnętrznych interfejsów w celu bezproblemowego przekazania przetworzonych informacji do warstwy prezentacyjnej.
+Baza danych została zaprojektowana do przechowywania danych o statkach powietrznych pobieranych z API OpenSky. Dane zostały podzielone na osobne tabele opisujące samoloty, ich pozycje, ruch, kraje, kategorie, obszary monitorowane oraz logi importu.
+
+\subsubsection{Opis tabel}
+Poniżej wymienione są tabele obecne w bazie wraz z ich kolumnami.
+
+\paragraph{Aircraft} – zawiera informacje o konkretnym samolocie.
+\begin{itemize}
+    \item \textbf{aircraft\_id} – klucz główny, wewnętrzny identyfikator samolotu w bazie
+    \item \textbf{icao24} – identyfikator samolotu z OpenSky, jest unikatowy
+    \item \textbf{callsign} – oznaczenie lotu
+    \item \textbf{country\_id} – klucz obcy odwołujący się do tabeli „countries”, identyfikator kraju pochodzenia
+    \item \textbf{category\_id} – klucz obcy odwołujący się do tabeli „categories”, identyfikator kategorii statku powietrznego
 \end{itemize}
 
-\subsection{Warstwa prezentacyjna (Frontend) -- Jakub Muszalski i Radosław Myśliwy}
-Interfejs użytkownika został zrealizowany w środowisku Streamlit. Prace w tym obszarze zostały podzielone na dwa główne moduły:
-\begin{itemize}[label=--]
-    \item \textbf{Jakub Muszalski} --- odpowiadał za ogólną architekturę frontendu, przygotowanie spójnego układu graficznego (layoutu) aplikacji oraz implementację zaawansowanych, interaktywnych tabel. Jego praca umożliwiła użytkownikowi końcowemu wygodne przeglądanie oraz filtrowanie surowych i przetworzonych rekordów bazodanowych.
-    \item \textbf{Radosław Myśliwy} --- skoncentrował się na module wizualizacji danych. Był odpowiedzialny za transformację danych dostarczanych przez backend na czytelne, interaktywne wykresy analityczne. Dzięki temu aplikacja zyskała warstwę interpretacji statystyk i trendów w ruchu lotniczym.
+\paragraph{Categories} – tabela słownikowa mapująca opis i nazwę kategorii do jej numeru id. Kategorie są zaczerpnięte wprost z dokumentacji API.
+\begin{itemize}
+    \item \textbf{category\_id} – klucz główny, identyfikator kategorii statku powietrznego
+    \item \textbf{name, text} – nazwa kategorii
+    \item \textbf{description} – opis kategorii
 \end{itemize}
 
-\section{Podsumowanie}
-Dzięki ścisłej współpracy oraz klarownemu podziałowi obowiązków w zespole, udało się stworzyć w pełni funkcjonalne narzędzie bazodanowe. Zaprojektowany przez Igora Lelito backend sprawnie zasila aplikację aktualnymi informacjami z sieci OpenSky, natomiast frontend stworzony przez Jakuba Muszalskiego i Radosława Myśliwego oferuje intuicyjne i estetyczne środowisko do ich analizy. Projekt pozwolił na praktyczne zrozumienie wyzwań związanych z przetwarzaniem i prezentacją danych pobieranych w czasie rzeczywistym.
+\paragraph{Aircraft\_position} – zawiera informacje o pozycji samolotu w pewnej chwili czasu.
+\begin{itemize}
+    \item \textbf{position\_id} – klucz główny, identyfikator rekordu pozycji
+    \item \textbf{aircraft\_id} – klucz obcy odwołujący się do tabeli „aircraft”
+    \item \textbf{import\_id} – klucz obcy odwołujący się do tabeli „import\_logs”
+    \item \textbf{area\_id} – klucz obcy odwołujący się do tabeli „monitored\_areas”, obszar monitorowany, nad którym znajdował się samolot. Jeśli samolot nie znajdował się nad żadnym ze zdefiniowanych obszarów był mu przypisywany ogólny obszar „Reszta świata”
+    \item \textbf{time\_position} – czas pozycji
+    \item \textbf{longitude} – długość geograficzna
+    \item \textbf{latitude} – szerokość geograficzna
+    \item \textbf{geo\_altitude} – wysokość geometryczna w metrach
+    \item \textbf{baro\_altitude} – wysokość barometryczna w metrach
+\end{itemize}
+
+\paragraph{Aircraft\_movement} – zawiera informacje o ruchu samolotu w danej pozycji.
+\begin{itemize}
+    \item \textbf{position\_id} – klucz główny i klucz obcy odwołujący się do tabeli „aircraft\_postition”, identyfikator rekordu pozycji
+    \item \textbf{velocity} – prędkość w metrach na sekundę
+    \item \textbf{true\_track} – kąt lotu w stopniach zgodnie z ruchem wskazówek zegara od północy
+\end{itemize}
+
+\paragraph{Countries} – tabela słownikowa mapująca nazwę kraju do jego id w bazie.
+\begin{itemize}
+    \item \textbf{country\_id} – klucz główny, identyfikator kraju
+    \item \textbf{name, text} – nazwa kraju
+\end{itemize}
+
+\paragraph{Monitored\_areas} – zawiera współrzędne geograficzne predefiniowanych obszarów, które są wykorzystywane do filtrowania. Obecna implementacja zawiera współrzędne obszarów nad większymi polskimi miastami.
+\begin{itemize}
+    \item \textbf{area\_id} – klucz główny, identyfikator obszaru
+    \item \textbf{name} – nazwa obszaru
+    \item \textbf{lamin} – dolny zakres szerokości geograficznej
+    \item \textbf{lomin} – dolny zakres długości geograficznej
+    \item \textbf{lamax} – górny zakres szerokości geograficznej
+    \item \textbf{lomax} – górny zakres długości geograficznej
+\end{itemize}
+
+\paragraph{Import\_logs} – tabela techniczna do logowania importu danych z API
+\begin{itemize}
+    \item \textbf{import\_id} – klucz główny, identyfikator importu
+    \item \textbf{imported\_at} – czas importu
+    \item \textbf{api\_name} – nazwa API
+    \item \textbf{endpoint} – adres API użyty podczas importu
+    \item \textbf{records\_received} – liczba rekordów pobranych z API
+    \item \textbf{records\_saved} – liczba rekordów zapisanych do bazy danych
+    \item \textbf{status} – status (success/error)
+    \item \textbf{error\_message} – komunikat błędu, jeśli import się nie udał
+\end{itemize}
+
+\subsubsection{Relacje między tabelami}
+\begin{itemize}
+    \item \textbf{countries - aircraft} – relacja jeden-do-wielu. Jeden kraj może mieć wiele przypisanych samolotów, ale jeden samolot ma jeden kraj pochodzenia.
+    \item \textbf{categories - aircraft} – relacja jeden-do-wielu. Jedna kategoria może być przypisana do wielu samolotów, ale jeden samolot należy do jednej kategorii.
+    \item \textbf{aircraft - aircraft\_position} – relacja jeden-do-wielu. Jeden samolot może mieć wiele zapisanych pozycji w różnych momentach czasu.
+    \item \textbf{import\_logs - aircraft\_position} – relacja jeden-do-wielu. Jeden import danych z API może zawierać wiele pozycji samolotów.
+    \item \textbf{monitored\_areas - aircraft\_position} – relacja jeden-do-wielu. Jeden obszar monitorowany może obejmować wiele pozycji samolotów.
+    \item \textbf{aircraft\_position - aircraft\_movement} – relacja jeden-do-jednego. Jedna pozycja samolotu ma jeden odpowiadający rekord opisujący ruch.
+\end{itemize}
+
+\subsubsection{Zabezpieczenia danych}
+\begin{itemize}
+    \item Zastosowanie unikalności dla pola \textbf{icao24} zapobiega wielokrotnemu zapisaniu tego samego statku powietrznego.
+    \item Zastosowanie unikalności dla pary \textbf{aircraft\_id} oraz \textbf{import\_id} w tabeli \textbf{aircraft\_position} zapobiega zapisaniu tej samej pozycji samolotu więcej niż raz w ramach jednego importu.
+    \item Zastosowanie unikalności dla pary \textbf{aircraft\_id} oraz \textbf{time\_position} w tabeli \textbf{aircraft\_position} zapobiega zapisaniu tych samych pozycji z API dla jednego samolotu w przypadku gdy w wielu importach znajduje się ta sama pozycja.
+    \item Zastosowanie tabel słownikowych \textbf{countries} i \textbf{categories} ogranicza powtarzanie tych samych wartości tekstowych oraz zmniejsza ryzyko literówek w danych.
+\end{itemize}
+
+Szczegółowe informacje na temat kolumn jak m.in. ustawienia unikalności, typy danych oraz zabezpieczenia przed wartością Null są zawarte na poniższym schemacie ERD bazy danych oraz w pliku \texttt{create\_tables.sql} w folderze „database” i w pliku \texttt{ERD.dbml} w folderze „docs”. Mając zainstalowane rozszerzenie „dbdiagram” w VSCode lub korzystając ze strony \texttt{dbdiagram.io} można wygenerować schemat ERD na podstawie kodu w pliku \texttt{ERD.dbml}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{schemat-erd.png}
+    \caption{Schemat ERD bazy danych}
+    \label{fig:schemat_erd}
+\end{figure}
+
+Skrypty SQL generujące bazę danych (jeśli nie istnieje) oraz wypełniające tabele „monitored\_areas” oraz „categories” predefiniowanymi rekordami znajdują się w folderze „database” w katalogu projektu.
+
+\subsection{Metody prezentacji danych - dashboard}
+
+Dashboard jest aplikacją web’ową składającą się z 3 metod wizualizacji oraz 10 filtrów danych. Można go włączyć z równolegle pracującym importem i zapisem danych do bazy poprzez plik \texttt{run.py} w katalogu głównym projektu lub samodzielnie pracując jedynie na już zapisanych danych poprzez wpisanie następującej komendy w terminalu „\texttt{python -m streamlit run app/dashboard.py}” znajdując się w katalogu głównym projektu.
+
+\subsubsection{Wizualizacje}
+
+\paragraph{Mapa samolotów} – pokazuje pozycje samolotów na mapie świata w postaci ikonek samolotu. Orientacja ikony jest zgodna z kątem lotu samolotu. Po najechaniu na ikonę pokazują się informacje o numerze icao24 samolotu oraz kod jego lotu. Ze względu na przejrzystość mapa niezależnie od filtrów zawsze pokazuje tylko najnowszą pozycję danego samolotu. Dodatkowo domyślnie mapa pokazuje tylko pozycje nie starsze niż 15 minut, ale można to zmienić ręcznie ustawiając przedział czasowy za pomocą filtrów. Spowodowane jest to gromadzeniem się samolotów na brzegach monitorowanego obszaru świata (Polska i okolice), ponieważ gdy wylecą za monitorowany obszar, ich najnowsza pozycja jest właśnie na brzegach i pozostaje tam ich martwa, nieaktualizowana wizualizacja.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{mapa.png}
+    \caption{Mapa samolotów}
+    \label{fig:mapa}
+\end{figure}
+
+\paragraph{Karta samolotu} – po kliknięciu na daną ikonkę samolotu, w miejscu mapy pokażą się wykresy ukazujące wartości w czasie jego: prędkości, wysokości geometrycznej oraz długości i szerokości geograficznej. Do mapy można wrócić klikając przycisk „Powrót do mapy”. Może zajść sytuacja gdy w bazie istnieje tylko jeden zestaw danych na temat samolotu, wtedy wykresy będą miały postać jednego punktu. Wykresy są interaktywne, można je przesuwać (w szczególności w czasie) i skalować.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{wykresy.png}
+    \caption{Karta samolotu}
+    \label{fig:wykresy}
+\end{figure}
+
+\paragraph{Tabela z danymi} – służy do podglądu danych na temat pozycji i ruchu samolotów w bazie. W przeciwieństwie do mapy może wyświetlać również historyczne (nie najnowsze) dane. Jest interaktywna i można w niej m.in. sortować dane rosnąco lub malejąco w kolumnach.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{lista.png}
+    \caption{Tabela z danymi}
+    \label{fig:lista}
+\end{figure}
+
+\subsubsection{Filtry}
+
+Widoczne są w zakładce po lewej stronie dashboardu. Jeśli jest niewidoczna należy ją rozwinąć za pomocą przycisku (dwa groty strzałek) w lewym górnym rogu.
+
+\begin{itemize}
+    \item \textbf{„Tylko najnowsze dane samolotu”} – po włączeniu w tabeli pokazują się jedynie najnowsze dane dostępne w bazie.
+    \item \textbf{Kraj pochodzenia} – ogranicza dane w wizualizacjach do samolotów pochodzących z danego kraju.
+    \item \textbf{Kategoria} – ogranicza dane w wizualizacjach do samolotów tylko z danej kategorii.
+    \item \textbf{Lokalizacja} – ogranicza dane w wizualizacjach do tych pochodzących z danego obszaru świata. Obszar można wybrać z predefiniowanych (większe miasta w Polsce) lub zdefiniować go ręcznie zakresem szerokości i długości geograficznych.
+    \item \textbf{Minimalna prędkość} – ogranicza dane w wizualizacjach do samolotów z prędkością nie mniejszą niż ustawiona za pomocą suwaka.
+    \item \textbf{Wysokość geometryczna} – ogranicza dane w wizualizacjach do samolotów lecących w danym zakresie wysokości geometrycznej. Można ją ograniczyć z obu stron lub z jednej.
+    \item \textbf{Wysokość barometryczna} – ogranicza dane w wizualizacjach do samolotów lecących w danym zakresie wysokości barometrycznej. Można ją ograniczyć z obu stron lub z jednej.
+    \item \textbf{Icao24} – ogranicza dane w wizualizacjach do tych dotyczących konkretnego samolotu o danym identyfikatorze icao24. Ze względu na działanie mapy oznacza to ukazanie na niej maksymalnie jednego samolotu.
+    \item \textbf{Oznaczenie lotu} – ogranicza dane w wizualizacjach do samolotów realizujących dany lot.
+    \item \textbf{Przedział czasowy} – ogranicza dane w wizualizacjach do tych pochodzących z danego zakresu czasowego z dokładnością do minuty. Można go ograniczyć z obu stron lub jednej.
+\end{itemize}
+
+Dodatkowo na dole zakładki z filtrami można ustawić wyświetlanie zapytania SQL do bazy danych. Zapytanie oczywiście zmienia się zależnie od użytych filtrów.
+
+\subsubsection{Użyte zapytania SQL}
+
+\begin{itemize}
+    \item Pobranie nazw krajów do wyboru w filtrze „kraj pochodzenia”: \texttt{SELECT name FROM countries ORDER BY name}
+    \item Pobranie nazw kategorii do wyboru w filtrze „kategoria”: \texttt{SELECT name FROM categories ORDER BY category\_id}
+    \item Pobranie nazw monitorowanych obszarów (miast) do wyboru w filtrze „lokalizacja”: \texttt{SELECT name FROM monitored\_areas ORDER BY name}
+\end{itemize}
+
+Zapytanie do bazy o dane o samolotach jest tworzone dynamicznie zgodnie z wybranymi filtrami. Cała funkcja generująca zapytanie znajduje się w pliku \texttt{dashboard\_methods.py} w folderze „app”. Gdy filtr „Tylko najnowsze dane samolotu” jest włączony, wspólna część zapytania dla reszty filtrów jest następująca:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{zapytania.png}
+    \caption{Fragment zapytania dla włączonego filtra najnowszych danych}
+    \label{fig:zapytania}
+\end{figure}
+
+Do uzyskania tylko najnowszych danych pozycji każdego samolotu wykorzystano podzapytanie we FROM (JOIN) agregujące dane funkcją MAX. Ta sama część zapytania dla wyłączonego filtra jest następująca:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{zapytania2.png}
+    \caption{Fragment zapytania dla wyłączonego filtra najnowszych danych}
+    \label{fig:zapytania2}
+\end{figure}
+
+Dynamiczne dodawanie warunków zgodnie z wybranymi filtrami realizowane jest jak na poniższym przykładzie dla filtra „lokalizacja”:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{zapytania3.png}
+    \caption{Dynamiczne dodawanie warunków w zapytaniu}
+    \label{fig:zapytania3}
+\end{figure}
+
+Jeśli filtr podany jest w formie krotki z zakresami współrzędnych geograficznych to odpowiednie warunki są dodawane do listy „conditions” a parametry znajdujące się w tych warunkach do słownika „params”. Jeśli filtr ma formę stringa (czyli zostało wybrane konkretne miasto) to współrzędne są pobierane za pośrednictwem funkcji „\texttt{get\_area\_cords}”. Funkcja ta pobiera z bazy informacje o współrzędnych obszaru nad miastem poprzez zapytanie:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{zapytania4.png}
+    \caption{Pobieranie informacji o współrzędnych obszaru}
+    \label{fig:zapytania4}
+\end{figure}
+
+Sprawdzenie czy filtry zostały użyte i ich ewentualne uwzględnienie wykonuje poniższy kod:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{zapytania5.png}
+    \caption{Sprawdzenie i uwzględnienie filtrów}
+    \label{fig:zapytania5}
+\end{figure}
+
+Wrapper „\texttt{@st.cache\_data}” zachowuje w pamięci wynik wywołania funkcji „\texttt{get\_area\_cords}” dla konkretnych parametrów (nazwy obszaru) dzięki czemu zapytanie o dany obszar wysyłane jest tylko raz w ramach całej pracy aplikacji. Takie same wrappery są użyte również w innych funkcjach używanych przez dashboard, niektóre z nich (te wysyłające zapytania) mają ustawiony „czas życia” zapisanego wyniku w pamięci (zmienna „\texttt{cache\_del\_interval}”) o wartości powiązanej z czasem cyklicznego importu danych z API. Dzięki temu rozwiązaniu aplikacja działa sprawniej jednocześnie nie tracąc możliwości ciągłego działania ze zmieniającą się bazą (bez ograniczonego czasu życia funkcja zwracałaby cały czas te same dane dla konkretnych parametrów-filtrów nie „widząc” pojawiania się nowych danych). Inne funkcje, np. tworząca połączenie z bazą czy powyższa pobierająca współrzędne mają nielimitowany czas życia.
+
+\subsection{Architektura backendu i pobieranie danych}
+
+Backend aplikacji został zaprojektowany w oparciu o programowanie wielowątkowe. Składa się on z dwóch głównych klas: czytnika API (\texttt{ApiReader}) oraz menedżera bazy danych (\texttt{DBmanager}). Moduły te komunikują się ze sobą asynchronicznie za pomocą struktury kolejki (\texttt{queue}), co zapewnia bezpieczeństwo wątków i zapobiega blokowaniu się procesów.
+
+\subsubsection{Moduł pobierania danych (ApiReader)}
+Klasa \texttt{ApiReader} pełni funkcję producenta danych. Odpowiada za cykliczne odpytywanie zewnętrznego interfejsu OpenSky API i przekazywanie wyników do dalszego przetwarzania.
+
+\begin{itemize}
+    \item \textbf{Autoryzacja i inicjalizacja} – podczas tworzenia obiektu, moduł wczytuje poświadczenia (klucz klienta oraz sekret) z pliku konfiguracyjnego \texttt{credentials.json}. Pozwala to na uwierzytelniony dostęp do API, co wiąże się z większymi limitami zapytań niż w przypadku korzystania z API bez logowania.
+    \item \textbf{Wielowątkowość} – proces pobierania danych zostaje wyodrębniony do osobnego wątku (typu daemon) poprzez uruchomienie pętli \texttt{\_read\_loop}. Pracą wątku steruje obiekt \texttt{threading.Event()}, który pozwala na jego bezpieczne zatrzymanie w dowolnym momencie.
+    \item \textbf{Ograniczenie obszaru} – zapytania do API są optymalizowane poprzez podanie koordynatów obszaru ograniczającego (bounding box). Moduł pobiera informacje wyłącznie o statkach powietrznych znajdujących się na terenie Polski. Pozwala to na zmniejszenie liczby wysyłanych zapytań, a więc też używanych tokenów API, gdy analizowane są wyłącznie loty nad terytorium kraju.
+    \item \textbf{Przekazywanie danych} – po udanym pobraniu wektora stanu, dane trafiają do współdzielonej kolejki, skąd mogą być asynchronicznie odebrane przez system zapisu, a sam wątek usypia na zdefiniowany interwał czasowy.
+\end{itemize}
+
+\subsubsection{Moduł zapisu i zarządzania bazą (DBmanager)}
+Klasa \texttt{DBmanager} jest konsumentem danych oraz głównym interfejsem dostępowym do bazy SQLite. Zarządza zarówno inicjalizacją struktur, zapisem spływających informacji, jak i serwowaniem ich na żądanie.
+
+\begin{itemize}
+    \item \textbf{Inicjalizacja i konfiguracja} – przy starcie aplikacja zestawia połączenie z plikiem \texttt{data.db}. Moduł automatycznie wykonuje predefiniowane skrypty SQL (\texttt{create\_tables.sql}, \texttt{add\_monitored\_areas.sql}, \texttt{add\_obj\_categories.sql}), upewniając się, że wszystkie tabele istnieją, a dane słownikowe zostały załadowane. Połączenie ignoruje restrykcje użycia w obrębie jednego wątku (\texttt{check\_same\_thread=False}), co ułatwia zarządzanie aplikacją.
+    \item \textbf{Pętla zapisująca} – podobnie jak czytnik API, zapis odbywa się w oddzielnym wątku. Pętla \texttt{\_save\_loop} cyklicznie sprawdza obecność nowych obiektów w kolejce z określonym limitem czasu (timeout), który jest dostosowany do interwału pobierania danych.
+    \item \textbf{Przetwarzanie i mapowanie logiki} – sercem modułu jest metoda \texttt{\_save\_state\_vector}. Wyodrębnia ona z pobranych paczek informacji poszczególne parametry (bez względu na to, czy są słownikami, czy obiektami klas). Pozycje samolotów są w locie porównywane ze współrzędnymi zdefiniowanych obszarów (\texttt{monitored\_areas}), co pozwala przypisać im odpowiedni identyfikator strefy.
+    \item \textbf{Zarządzanie relacjami} – przed zapisaniem samej pozycji moduł weryfikuje istnienie kraju pochodzenia w słowniku, a w razie jego braku dodaje go dynamicznie. Zapis głównego rekordu samolotu wykorzystuje mechanizm aktualizacji w razie konfliktu unikalnego identyfikatora icao24 (\texttt{ON CONFLICT... DO UPDATE}), dbając o zachowanie najświeższego oznaczenia lotu.
+    \item \textbf{Bezpieczeństwo transakcyjne} – operacje zapisu obłożone są kontrolą błędów. Naruszenia unikalności wpisów wynikające np. z powielonych odczytów są bezpiecznie ignorowane (\texttt{sqlite3.IntegrityError}). W przypadku poważniejszych problemów następuje wycofanie transakcji (\texttt{rollback()}), a szczegóły błędu lądują w tabeli logów importu.
+    \item \textbf{Integracja z interfejsem graficznym} – moduł udostępnia dedykowaną metodę \texttt{fetch\_dataframe}, która przyjmuje zapytanie SQL i zwraca wynik bezpośrednio pod postacią ramki danych biblioteki \texttt{pandas}. Jest to kluczowy element wykorzystywany do komunikacji backendu z dashboardem prezentacyjnym.
+\end{itemize}
+
+\subsection{Instrukcja użytkowania i uruchomienia programu}
+
+\subsubsection{Wymagania wstępne i konfiguracja}
+
+Aby aplikacja mogła poprawnie funkcjonować i pobierać dane, wymagane jest posiadanie aktywnego konta w serwisie OpenSky oraz lokalne skonfigurowanie poświadczeń. W tym celu należy wykonać następujące kroki:
+
+\begin{enumerate}
+    \item Zarejestrować darmowe konto na stronie OpenSky Network.
+    \item W zakładce \texttt{/my-opensky/account} wygenerować klucz API, pobrać plik \texttt{credentials.json} i upewnić się, że jego struktura wygląda następująco:
+
+\begin{verbatim}
+{"clientId":"clientID-example","clientSecret":"clientSecret-example"}
+\end{verbatim}
+
+    \item Umieścić pobrany plik w głównym katalogu projektu.
+\end{enumerate}
+
+\subsubsection{Uruchomienie aplikacji}
+
+Proces uruchamiania został w pełni zautomatyzowany za pomocą skryptu startowego \texttt{run.py}. Skrypt ten po wywołaniu automatycznie wykonuje niezbędne czynności przygotowawcze:
+
+\begin{itemize}
+    \item Tworzy nowe wirtualne środowisko w folderze \texttt{.venv}.
+    \item Instaluje wszystkie wymagane biblioteki zdefiniowane w projekcie przy użyciu menedżera pakietów \texttt{pip}. Lista tych bibliotek znajduje się w pliku \texttt{requirements.txt} i może być aktualizowana wraz z rozwojem projektu.
+\end{itemize}
+
+Aby uruchomić aplikację, należy otworzyć terminal w głównym katalogu projektu i wykonać poniższe polecenie:
+
+\begin{verbatim}
+python run.py
+\end{verbatim}
+
+Program uruchomi wtedy proces backendu systemu i zacznie pobierać dane przy użyciu API. W tym czasie uruchomiona zostanie przeglądarka, a program nawiąże połączenie z lokalną bazą danych i uruchomi interaktywny interfejs użytkownika. W przypadku przerwania działania skryptu, program wstrzymuje zatrzymanie do czasu zakończenia działania procesów potomnych. Zabezpiecza to zapis pobieranych danych i pozwala na w pełni bezpieczne przerwanie działania programu w dowolnym momencie.
 
 \end{document}
