@@ -1,12 +1,3 @@
-# plane_scanner
-Repozytorium projektu zaliczeniowego przedmiotu "Wprowadzenie do baz danych". Aplikacja korzystając z OpenSky API zwraca informacje o ruchu lotniczym.
-
-## Uruchomienie aplikacji
-Aby włączyć program, wystarczy uruchomić plik `run.py`. Skrypt ten jest w pełni zautomatyzowany - samodzielnie utworzy wirtualne środowisko (`.venv`), a następnie zainstaluje wszystkie wymagane biblioteki przy użyciu menedżera pakietów `pip`.
-
-```bash
-python run.py
-=======
 # Plane Scanner
 
 Projekt zaliczeniowy z przedmiotu **„Wprowadzenie do baz danych”**. Aplikacja monitoruje i zwraca informacje o bieżącym ruchu lotniczym nad Polską, wykorzystując w czasie rzeczywistym dane udostępniane przez [OpenSky Network API](https://opensky-network.org/).
